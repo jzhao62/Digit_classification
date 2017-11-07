@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import cv2 as cv
 import os
 import tensorflow as tf
+import glob
+from scipy import misc
 #..
 
 def reformat(labels):
@@ -39,6 +41,8 @@ def accuracy_tf(predictions, labels):
 
 def one_hot_encoding(t):
     return np.argmax(t, axis=1)
+
+
 
 def plot_data(y_values1, label, axis_dim, xlabel, ylabel, title):
     plt.plot(y_values1, 'b-',label=label)
@@ -101,7 +105,7 @@ def get_training_data():
     return train_dataset, train_labels, raw_train_labels, valid_dataset, valid_labels, raw_valid_labels, test_dataset, test_labels, raw_test_labels
 
 def process_usps_data():
-    path_to_data = "./USPSdata/Numerals/"
+    path_to_data = "./USPSdata/Numerals_1/"
     img_list = os.listdir(path_to_data)
     sz = (28,28)
     validation_usps = []
@@ -111,13 +115,17 @@ def process_usps_data():
         img_list = os.listdir(label_data)
         for name in img_list:
             if '.png' in name:
-                img = cv.imread(label_data+name)
-                img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-                resized_img = resize_and_scale(img, sz, 255)
+                file_name_dir = label_data + name;
+                for image_path in glob.glob(file_name_dir):
+                    image = misc.imread(image_path)
+                image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+                resized_img = resize_and_scale(image, sz, 255)
                 validation_usps.append(resized_img.flatten())
                 validation_usps_label.append(i)
     validation_usps = np.array(validation_usps)
+    print(validation_usps.shape)
     validation_usps_label= np.array(validation_usps_label)
+    print(reformat(validation_usps_label).shape)
     return validation_usps, validation_usps_label
 
 def train_log_regression(X, y, valid_dataset, valid_labels, raw_train_labels, raw_valid_labels):
@@ -332,11 +340,11 @@ def train_cnn_model(train_dataset, train_labels, valid_dataset, valid_labels, te
 def main():
     ''' Fetch MNIST Data and USPS Data'''
     train_dataset, train_labels, raw_train_labels, valid_dataset, valid_labels, raw_valid_labels, test_dataset, test_labels, raw_test_labels = get_training_data()
-    print("Training Data fetched success!")
+    print("MNIST Data fetched success!")
 
 
-    # validation_usps, validation_usps_label = process_usps_data()
-    print ("Data fetched succesfully!")
+    validation_usps, validation_usps_label = process_usps_data()
+    print ("USPS Data fetched succesfully!")
 
     ''' Train Logistic Regression Classifier'''
     weights_lr, err_iteration_lr, train_accuracy_lr, validation_accuracy_lr = train_log_regression(train_dataset, train_labels, valid_dataset, valid_labels, raw_train_labels, raw_valid_labels)
