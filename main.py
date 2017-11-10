@@ -3,18 +3,12 @@ import _pickle as cPickle
 import gzip
 import math
 import matplotlib.pyplot as plt
-import cv2 as cv
-import os
 import tensorflow as tf
-import glob
-from scipy import misc
-#..
+from load_data import*
 
-def reformat(labels):
-    num_labels = 10
-    # Map 0 to [1.0, 0.0, 0.0 ...], 1 to [0.0, 1.0, 0.0 ...]
-    labels = (np.arange(num_labels) == labels[:,None]).astype(np.float32)
-    return labels
+
+
+
 
 def reformat_tf(dataset, labels):
     image_size = 28
@@ -23,10 +17,6 @@ def reformat_tf(dataset, labels):
     dataset = dataset.reshape((-1, image_size, image_size, num_channels)).astype(np.float32)
     labels = (np.arange(num_labels) == labels[:,None]).astype(np.float32)
     return dataset, labels
-
-def resize_and_scale(img, size, scale):
-    img = cv.resize(img, size)
-    return 1 - np.array(img, "float32")/scale
 
 def accuracy(y, t):
     count = 0
@@ -42,8 +32,6 @@ def accuracy_tf(predictions, labels):
 def one_hot_encoding(t):
     return np.argmax(t, axis=1)
 
-
-
 def plot_data(y_values1, label, axis_dim, xlabel, ylabel, title):
     plt.plot(y_values1, 'b-',label=label)
     plt.axis(axis_dim)
@@ -58,10 +46,11 @@ def add_ones(X):
 
 def calculate_entropy_loss(X, w, y):
     loss = 0
-    t = np.dot(X, w)
-    for i in range(len(t)):
-        loss += -1 * np.dot(y[i], np.log(t[i].T))
-    return float(loss)/len(t)
+    # computed probability
+    O = np.dot(X, w)
+    for i in range(len(O)):
+        loss += -1 * np.dot(y[i], np.log(O[i].T))
+    return float(loss)/len(O)
 
 def softmax(t):
     prob_matrix = []
@@ -75,66 +64,21 @@ def softmax(t):
         prob_matrix.append(prob_vector)
     return np.array(prob_matrix)
 
-
-def get_probabilities(X, theta):
-    t = np.dot(X, theta)
+def get_probabilities(X, curr_weight):
+    t = np.dot(X, curr_weight)
     prob_vector = softmax(t)
     return prob_vector
 
-def get_training_data():
-    f = gzip.open('mnist.pkl.gz', 'rb')
-    save = cPickle.load(f, encoding='latin1')
-    train_dataset = save[0][0]
-    train_labels = reformat(save[0][1])
-    raw_train_labels = save[0][1]
-
-    valid_dataset = save[1][0]
-    valid_labels = reformat(save[1][1])
-    raw_valid_labels = save[1][1]
-
-    test_dataset = save[2][0]
-    test_labels = reformat(save[2][1])
-    raw_test_labels = save[2][1]
-
-    print('Training set', train_dataset.shape, train_labels.shape)
-    print('Validation set', valid_dataset.shape, valid_labels.shape)
-    print('Test set', test_dataset.shape, test_labels.shape)
-
-    f.close()
-
-    return train_dataset, train_labels, raw_train_labels, valid_dataset, valid_labels, raw_valid_labels, test_dataset, test_labels, raw_test_labels
-
-def process_usps_data():
-    path_to_data = "./USPSdata/Numerals_1/"
-    img_list = os.listdir(path_to_data)
-    sz = (28,28)
-    validation_usps = []
-    validation_usps_label = []
-    for i in range(10):
-        label_data = path_to_data + str(i) + '/'
-        img_list = os.listdir(label_data)
-        for name in img_list:
-            if '.png' in name:
-                file_name_dir = label_data + name;
-                for image_path in glob.glob(file_name_dir):
-                    image = misc.imread(image_path)
-                image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-                resized_img = resize_and_scale(image, sz, 255)
-                validation_usps.append(resized_img.flatten())
-                validation_usps_label.append(i)
-    validation_usps = np.array(validation_usps)
-    print(validation_usps.shape)
-    validation_usps_label= np.array(validation_usps_label)
-    print(reformat(validation_usps_label).shape)
-    return validation_usps, validation_usps_label
 
 def train_log_regression(X, y, valid_dataset, valid_labels, raw_train_labels, raw_valid_labels):
     X = add_ones(X) # Bias term
-    maxiter = 100
+    maxiter = 50
     batch_size = 20
-    n = X.shape[1] 
+    # of inputs
+    n = X.shape[1]
+    # of data
     m = X.shape[0]
-    theta = np.random.rand(n, len(y[0])) # Initialise random weights
+    curr_weight = np.random.rand(n, len(y[0])) # Initialise random weights
     lmbda = 0.01
     alpha = 0.01
     max_error = 0.1
@@ -145,24 +89,33 @@ def train_log_regression(X, y, valid_dataset, valid_labels, raw_train_labels, ra
     for iteration in range(maxiter):
         start = 0
         for i in range(int(m/batch_size)):
-            out_probs = get_probabilities(X[start:start+batch_size], theta)
+
+            # 10 x 784 probability via softmax
+            out_probs = get_probabilities(X[start:start+batch_size], curr_weight)
+
+
             grad = (1.0/batch_size) * np.dot(X[start:start+batch_size].T, (out_probs - y[start:start+batch_size]))
-            g0 = grad[0]
-            grad += ((lmbda * theta) / batch_size)
-            grad[0] = g0 
-            theta -= alpha * grad
+            # g0 = grad[0]
+            grad += ((lmbda * curr_weight) / batch_size)
+            # grad[0] = g0
+            curr_weight -= alpha * grad
 
             # calculate the magnitude of the gradient and check for convergence
-            loss = calculate_entropy_loss(X[start:start+batch_size], theta, y)
+            loss = calculate_entropy_loss(X[start:start+batch_size], curr_weight, y)
             start += batch_size
         err_iteration.append(loss)
-        pred_output_train = np.dot(X, theta)
-        train_accuracy.append(accuracy(raw_train_labels, one_hot_encoding(pred_output_train)))
-        pred_output_valid = np.dot(add_ones(valid_dataset), theta)
-        validation_accuracy.append(accuracy(raw_valid_labels, one_hot_encoding(pred_output_valid)))
+
+        pred_output_train = np.dot(X, curr_weight)
+        single_train_accu = accuracy(raw_train_labels, one_hot_encoding(pred_output_train))
+        train_accuracy.append(single_train_accu)
+
+        pred_output_valid = np.dot(add_ones(valid_dataset), curr_weight)
+        single_valid_accu = accuracy(raw_valid_labels, one_hot_encoding(pred_output_valid))
+        validation_accuracy.append(single_valid_accu)
+
         if np.abs(loss)< max_error or math.isnan(loss):
             break
-    return theta, err_iteration, train_accuracy, validation_accuracy
+    return curr_weight, err_iteration, train_accuracy, validation_accuracy
 
 
 def train_single_layer_nn(train_dataset, train_labels, valid_dataset, raw_valid_labels):
@@ -339,14 +292,14 @@ def train_cnn_model(train_dataset, train_labels, valid_dataset, valid_labels, te
 
 def main():
     ''' Fetch MNIST Data and USPS Data'''
-    train_dataset, train_labels, raw_train_labels, valid_dataset, valid_labels, raw_valid_labels, test_dataset, test_labels, raw_test_labels = get_training_data()
+    train_dataset, train_labels, raw_train_labels, valid_dataset, valid_labels, raw_valid_labels, test_dataset, test_labels, raw_test_labels = import_MNIST()
     print("MNIST Data fetched success!")
-    validation_usps, validation_usps_label = process_usps_data()
+    validation_usps, validation_usps_label = import_USPS()
     print ("USPS Data fetched succesfully!")
 
 
     # TODO Generate result for Linear Regression model
-    if(False):
+    if(True):
         ''' Train Logistic Regression Classifier'''
         weights_lr, err_iteration_lr, train_accuracy_lr, validation_accuracy_lr = train_log_regression(train_dataset, train_labels, valid_dataset, valid_labels, raw_train_labels, raw_valid_labels)
         print ("LR model trained")
@@ -367,10 +320,8 @@ def main():
         print ("USPS Accuracy - Logistic Regression: ", accuracy(validation_usps_label, one_hot_encoding(pred_output_usps_lr)))
     # TODO Generate result for SNN
     if(False):
-        ''' Train a Single Layer Neural Network '''
         hidden_wts_nn, out_weights_nn, validation_accuracy_nn, train_losses_nn = train_single_layer_nn(train_dataset, train_labels, valid_dataset, raw_valid_labels)
         print ("SNN model trained")
-
         ''' Performance of Single Layer NN on MNIST Data '''
         plot_data(train_losses_nn, 'loss', [0, 100, -5, 5], 'Iterations', 'Training Loss', 'Training Losses over epochs: Single layer NN')
         plot_data(validation_accuracy_nn, 'accuracy', [0, 4, 0.9, 1], 'Iterations', 'Validation Accuracy', 'Validation accuracy over iterations Single layer NN')
@@ -386,6 +337,6 @@ def main():
         train_dataset_cnn, train_labels_cnn, valid_dataset_cnn, valid_labels_cnn, test_dataset_cnn, test_labels_cnn, usps_dataset_cnn, usps_labels_cnn = preprocess_data_cnn_tf(train_dataset, valid_dataset, test_dataset, raw_train_labels, raw_valid_labels, raw_test_labels,validation_usps, validation_usps_label)
         train_cnn_model(train_dataset_cnn, train_labels_cnn, valid_dataset_cnn, valid_labels_cnn, test_dataset_cnn, test_labels_cnn, usps_dataset_cnn, usps_labels_cnn)
 
-    print("it's a disastah Meow~ >_<")
+    print("------------Done--------------")
 
 main()
