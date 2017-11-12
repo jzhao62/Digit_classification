@@ -22,7 +22,7 @@ def import_MNIST():
     train_labels = reformat(save[0][1])
     raw_train_labels = save[0][1]
 
-    valid_dataset = save[1][0]
+    validation_data_input = save[1][0]
     valid_labels = reformat(save[1][1])
     raw_valid_labels = save[1][1]
 
@@ -31,12 +31,12 @@ def import_MNIST():
     raw_test_labels = save[2][1]
 
     print('Training set', train_dataset.shape, train_labels.shape)
-    print('Validation set', valid_dataset.shape, valid_labels.shape)
+    print('Validation set', validation_data_input.shape, valid_labels.shape)
     print('Test set', test_dataset.shape, test_labels.shape)
 
     f.close()
 
-    return train_dataset, train_labels, raw_train_labels, valid_dataset, valid_labels, raw_valid_labels, test_dataset, test_labels, raw_test_labels
+    return train_dataset, train_labels, raw_train_labels, validation_data_input, valid_labels, raw_valid_labels, test_dataset, test_labels, raw_test_labels
 def import_USPS():
     path_to_data = "./USPSdata/Numerals_1/"
     img_list = os.listdir(path_to_data)
@@ -56,7 +56,8 @@ def import_USPS():
                 validation_usps.append(resized_img.flatten())
                 validation_usps_label.append(i)
     validation_usps = np.array(validation_usps)
-    print('usps',validation_usps.shape)
+    # print('usps',validation_usps.shape)
+    # TODO: dont need reformat?
     validation_usps_label= np.array(validation_usps_label)
-    print('usps',reformat(validation_usps_label).shape)
+    # print('usps',reformat(validation_usps_label).shape)
     return validation_usps, validation_usps_label
