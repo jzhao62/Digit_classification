@@ -108,7 +108,7 @@ def train_cnn_model(train_dataset, train_labels,
             return tf.matmul(drop6, layer5_weights) + layer5_biases
 
         logits = model(tf_train_dataset, drop_out)
-        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(logits, tf_train_labels)) + beta_regul * (
+        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels = tf_train_labels, logits = logits)) + beta_regul * (
         tf.nn.l2_loss(layer1_weights) + tf.nn.l2_loss(layer2_weights) + tf.nn.l2_loss(layer3_weights) + tf.nn.l2_loss(
             layer4_weights) + tf.nn.l2_loss(layer5_weights))
 
