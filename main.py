@@ -58,6 +58,7 @@ def main():
 
         ''' Performance of Single Layer NN on USPS Data '''
         usps_accuracy_nn = evaluate_nn(validation_usps, validation_usps_label, hidden_wts_nn, out_weights_nn)
+        print ("USPS Accuracy - Single Layer NN: ", usps_accuracy_nn)
     # TODO Generate result for CNN
     if(False):
         ''' Train a Convolutional Neural Network'''
