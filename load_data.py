@@ -5,6 +5,7 @@ import gzip
 import _pickle as cPickle
 import cv2 as cv
 import numpy as np
+import pickle
 
 
 def resize_and_scale(img, size, scale):
@@ -29,10 +30,12 @@ def import_MNIST():
     test_dataset = save[2][0]
     test_labels = reformat(save[2][1])
     raw_test_labels = save[2][1]
-
-    print('Training set', train_dataset.shape, train_labels.shape)
-    print('Validation set', validation_data_input.shape, valid_labels.shape)
-    print('Test set', test_dataset.shape, test_labels.shape)
+    print(raw_train_labels.shape)
+    print('Training set', train_dataset.shape, 'Training label',train_labels.shape)
+    print(raw_valid_labels.shape)
+    print('Validation set', validation_data_input.shape,'val label', valid_labels.shape)
+    print(raw_test_labels.shape)
+    print('Test set', test_dataset.shape, 'test label', test_labels.shape)
 
     f.close()
 
@@ -57,7 +60,26 @@ def import_USPS():
                 validation_usps_label.append(i)
     validation_usps = np.array(validation_usps)
     # print('usps',validation_usps.shape)
-    # TODO: dont need reformat?
     validation_usps_label= np.array(validation_usps_label)
-    # print('usps',reformat(validation_usps_label).shape)
+
+    output1 = open('usps_test_image.pkl', 'wb')
+    output2 = open('usps_test_label.pkl','wb');
+
+    pickle.dump(validation_usps, output1);
+    pickle.dump(validation_usps_label, output2)
+
+    output1.close()
+    output2.close()
+
     return validation_usps, validation_usps_label
+
+
+def load_usps(pkl_image, pkl_label):
+    pkl1 = open('usps_test_image.pkl', 'rb')
+    pkl2 = open('usps_test_label.pkl', 'rb')
+    usps_image = pickle.load(pkl1)
+    usps_label = pickle.load(pkl2)
+
+    pkl1.close()
+    pkl2.close()
+    return usps_image, usps_label
