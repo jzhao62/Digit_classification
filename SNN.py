@@ -3,7 +3,7 @@ from utilities import*
 def train_single_layer_nn(train_dataset, train_labels, validation_data_input, raw_valid_labels):
     print('successfully called training method in SNN');
     #  TODO: change this to smaller scale if you want see faster result (but will be more erroronous)
-    train_size= 5000
+    train_size= 50000
     test_size=10000
     input_size=784
     output_size=10
