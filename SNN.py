@@ -5,11 +5,11 @@ def train_single_layer_nn(train_dataset, train_labels, raw_train_labels,  valida
     print('successfully called training method in SNN');
     #  TODO: change this to smaller scale if you want see faster result (but will be more erroronous)
     train_size= 50000
-    test_size=10000
+    # test_size=10000
     input_size=784
     output_size=10
-    hidden_layer_size = 500
-    neural_neta = 0.5
+    hidden_layer_size = 100
+    neta = 0.5
 
 
     # batch size for GD
@@ -53,8 +53,8 @@ def train_single_layer_nn(train_dataset, train_labels, raw_train_labels,  valida
             second_err = np.multiply(np.multiply(output,(1 - output)),(output - train_out_line))
             hidden_err = np.multiply(np.multiply(hidden_out,(1 - hidden_out)),np.dot(neural_out_wts.T,second_err))
 
-            neural_out_wts = neural_out_wts - 0.5 * np.dot(np.vstack(second_err),np.vstack(hidden_out).T)
-            hidden_wts = hidden_wts - 0.5 * np.dot(np.vstack(hidden_err),np.vstack(train_line).T)
+            neural_out_wts = neural_out_wts - neta * np.dot(np.vstack(second_err),np.vstack(hidden_out).T)
+            hidden_wts = hidden_wts - neta * np.dot(np.vstack(hidden_err),np.vstack(train_line).T)
         train_losses.append(np.sum(output - train_out_line))
 
         mini_b_start = mini_b_start+mini_batch_size
@@ -82,9 +82,11 @@ def SNN_compute_accu(input, label, hidden_weight, out_weight, title):
     for i in range(len(valid_input)):
         test_inp_line = valid_input[i]
         hidden_inp = np.dot(hidden_weight, test_inp_line)
-        hidden_out = 1 / (1 + np.exp(-1 * hidden_inp))
+        # hidden_out = 1 / (1 + np.exp(-1 * hidden_inp))
+        hidden_out = sigmoid(hidden_inp)
         second_inp = np.dot(out_weight, hidden_out)
-        neural_out_line = 1 / (1 + np.exp(-1 * second_inp))
+        # neural_out_line = 1 / (1 + np.exp(-1 * second_inp))
+        neural_out_line = sigmoid(second_inp)
         valid_pred.append(neural_out_line)
 
     print(title + " accuracy: ", accuracy(label, one_hot_encoding(np.array(valid_pred))))
@@ -93,7 +95,7 @@ def SNN_compute_accu(input, label, hidden_weight, out_weight, title):
 
 
 
-def evaluate_nn(test_dataset, raw_test_labels, hidden_wts, neural_out_wts):
+def evaluate_nn(test_dataset, raw_test_labels, hidden_wts, neural_out_wts,title):
     test_pred = []
     for i in range(len(test_dataset)):
         test_inp_line = test_dataset[i]
@@ -103,5 +105,6 @@ def evaluate_nn(test_dataset, raw_test_labels, hidden_wts, neural_out_wts):
         neural_out_line = 1/(1 + np.exp(-1 * second_inp))
         test_pred.append(neural_out_line)
     test_accuracy = accuracy(raw_test_labels,one_hot_encoding(np.array(test_pred)))
-    print("Confusion matrix on USPS (LR):\n%s" % metrics.confusion_matrix(raw_test_labels, one_hot_encoding(np.array(test_pred))))
-    return test_accuracy
+    cnf = metrics.confusion_matrix(raw_test_labels, one_hot_encoding(np.array(test_pred)))
+    print(title + ": Confusion matrix:\n%s" % cnf)
+    return test_accuracy, cnf

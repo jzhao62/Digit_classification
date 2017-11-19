@@ -8,7 +8,6 @@ from LRR import*
 from SNN import*
 from CNN import*
 from utilities import*
-from sklearn import metrics
 
 def main():
     train_dataset, train_labels, raw_train_labels, \
@@ -38,8 +37,6 @@ def main():
 
         plot_train_validation_accuracy(train_accuracy_lr, validation_accuracy_lr, [0,150], "Training", "Validation", "Training & Validation accuracy")
 
-
-
         pred_output_train_lr = np.dot(add_bias(train_dataset), weights_lr)
         print ("Training Set Accuracy(MNIST) - LR: ", accuracy(raw_train_labels, one_hot_encoding(pred_output_train_lr)))
 
@@ -50,16 +47,18 @@ def main():
     if(True):
         hidden_wts_nn, out_weights_nn, validation_accuracy_nn, train_accuracy_nn, train_losses_nn = train_single_layer_nn(train_dataset, train_labels, raw_train_labels, validation_data_input, raw_valid_labels)
         print ("SNN model trained")
-        ''' Performance of SNN on MNIST '''
         plot_data(train_losses_nn, 'loss', [0, 6, -4, 4], 'Epochs', 'Loss', 'Training Losses over epochs: SNN')
         plot_train_validation_accuracy(train_accuracy_nn, validation_accuracy_nn, [0,5], "Training", "Validation", " Training & validation accuracy (SNN)")
 
-        test_accuracy_nn = evaluate_nn(test_dataset, raw_test_labels, hidden_wts_nn, out_weights_nn)
+        test_accuracy_nn, cnf_mnist = evaluate_nn(test_dataset, raw_test_labels, hidden_wts_nn, out_weights_nn,"MNIST_testSet")
         print ("Test set Accuracy - SNN: ", test_accuracy_nn)
 
-        ''' Performance of SNN on USPS '''
-        usps_accuracy_nn = evaluate_nn(validation_usps, validation_usps_label, hidden_wts_nn, out_weights_nn)
+        usps_accuracy_nn, cnf_usps = evaluate_nn(validation_usps, validation_usps_label, hidden_wts_nn, out_weights_nn, "USPS_testSet")
         print('Performance on USPS(SNN): ', usps_accuracy_nn)
+        plt.figure()
+        plot_confusion_matrix(cnf_usps, title='Confusion matrix on USPS (SNN), Accuracy: %.1f%%' % (usps_accuracy_nn * 100))
+        plt.show()
+
     if(False):
         ''' Train a Convolutional Neural Network'''
         print ("Training a CNN")
