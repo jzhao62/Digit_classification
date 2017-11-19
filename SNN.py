@@ -34,7 +34,7 @@ def train_single_layer_nn(train_dataset, train_labels, raw_train_labels,  valida
     train_losses = []
     num_iter=0
 
-    while(num_iter < 5):
+    while(num_iter < 10):
         mini_b_stop = min(train_size,mini_b_start+mini_batch_size-1);
         curr_train_design_mat = train_dataset[mini_b_start:mini_b_stop]
         curr_train_output_k_format = train_labels[mini_b_start:mini_b_stop]

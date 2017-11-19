@@ -23,10 +23,6 @@ def main():
     print('------------------------------')
 
 
-
-
-
-
     if(False):
         ''' Train Logistic Regression Classifier'''
         weights_lr, loss_record_lr, train_accuracy_lr, validation_accuracy_lr = train_log_regression(train_dataset, train_labels,
@@ -47,7 +43,7 @@ def main():
     if(True):
         hidden_wts_nn, out_weights_nn, validation_accuracy_nn, train_accuracy_nn, train_losses_nn = train_single_layer_nn(train_dataset, train_labels, raw_train_labels, validation_data_input, raw_valid_labels)
         print ("SNN model trained")
-        plot_data(train_losses_nn, 'loss', [0, 6, -4, 4], 'Epochs', 'Loss', 'Training Losses over epochs: SNN')
+        plot_data(train_losses_nn, 'loss', [0, 11, -4, 4], 'Epochs', 'Loss', 'Training Losses over epochs: SNN')
         plot_train_validation_accuracy(train_accuracy_nn, validation_accuracy_nn, [0,5], "Training", "Validation", " Training & validation accuracy (SNN)")
 
         test_accuracy_nn, cnf_mnist = evaluate_nn(test_dataset, raw_test_labels, hidden_wts_nn, out_weights_nn,"MNIST_testSet")
