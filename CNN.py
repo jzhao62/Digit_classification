@@ -1,5 +1,5 @@
 from utilities import*
-import matplotlib.pyplot as plt
+from sklearn import metrics
 import tensorflow as tf
 
 def reformat_tf(dataset, labels):
@@ -19,14 +19,7 @@ def accuracy_tf(predictions, labels):
             / predictions.shape[0])
 
 
-def plot_data(y_values1, label, axis_dim, xlabel, ylabel, title):
-    plt.plot(y_values1, 'b-', label=label)
-    plt.axis(axis_dim)
-    plt.ylabel(ylabel)
-    plt.xlabel(xlabel)
-    plt.title(title)
-    l = plt.legend()
-    plt.show()
+
 
 
 def preprocess_data_cnn_tf(train_dataset, validation_data_input, test_dataset,
@@ -122,7 +115,8 @@ def train_cnn_model(train_dataset, train_labels,
         test_prediction = tf.nn.softmax(model(tf_test_dataset, 1.0))
         usps_prediction = tf.nn.softmax(model(tf_usps_dataset, 1.0))
 
-    num_steps = 20001
+    num_steps = 10000
+    loss_record = []
 
     with tf.Session(graph=graph) as session:
         tf.initialize_all_variables().run()
@@ -133,9 +127,28 @@ def train_cnn_model(train_dataset, train_labels,
             batch_labels = train_labels[offset:(offset + batch_size), :]
             feed_dict = {tf_train_dataset: batch_data, tf_train_labels: batch_labels, beta_regul: 1e-3}
             _, l, predictions = session.run([optimizer, loss, train_prediction], feed_dict=feed_dict)
-            if (step % 1000 == 0):
+
+            loss_record.append(l)
+            if (step % 500 == 0):
                 print('Minibatch loss at step %d: %f' % (step, l))
-                print('Minibatch accuracy: %.1f%%' % accuracy_tf(predictions, batch_labels))
-                print('Validation accuracy: %.1f%%' % accuracy_tf(valid_prediction.eval(), valid_labels))
-        print('Test accuracy: %.1f%%' % accuracy_tf(test_prediction.eval(), test_labels))
-        print('USPS data accuracy: %.1f%%' % accuracy_tf(usps_prediction.eval(), usps_labels))
+                # print('Minibatch accuracy: %.1f%%' % accuracy_tf(predictions, batch_labels))
+                # print('Validation accuracy: %.1f%%' % accuracy_tf(valid_prediction.eval(), valid_labels))
+
+        valid_prediction_output = valid_prediction.eval()
+        test_prediction_output = test_prediction.eval()
+        usps_prediction_output = usps_prediction.eval()
+        print('Validation accuracy: %.1f%%' % accuracy_tf(valid_prediction_output, valid_labels))
+        print('Test accuracy: %.1f%%' % accuracy_tf(test_prediction_output, test_labels))
+        print('USPS data accuracy: %.1f%%' % accuracy_tf(usps_prediction_output, usps_labels))
+
+        p = np.argmax(usps_prediction_output, 1)
+        label = np.argmax(usps_labels, 1)
+        print("prediction: ",p)
+        print("label: ", label )
+        cnf = metrics.confusion_matrix(label, p)
+        print("Confusion matrix on USPS (CNN):\n%s" % cnf )
+        plt.figure()
+        plot_confusion_matrix(cnf, title='Confusion matrix on USPS (CNN model), Accuracy: %.1f%%' % accuracy_tf(usps_prediction_output, usps_labels))
+        plt.show()
+        return loss_record
+

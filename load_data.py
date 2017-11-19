@@ -17,7 +17,7 @@ def reformat(labels):
     labels = (np.arange(num_labels) == labels[:,None]).astype(np.float32)
     return labels
 def import_MNIST():
-    f = gzip.open('mnist.pkl.gz', 'rb')
+    f = gzip.open('data/mnist.pkl.gz', 'rb')
     save = cPickle.load(f, encoding='latin1')
     train_dataset = save[0][0]
     train_labels = reformat(save[0][1])
@@ -75,8 +75,8 @@ def import_USPS():
 
 
 def load_usps(pkl_image, pkl_label):
-    pkl1 = open('usps_test_image.pkl', 'rb')
-    pkl2 = open('usps_test_label.pkl', 'rb')
+    pkl1 = open('data/usps_test_image.pkl', 'rb')
+    pkl2 = open('data/usps_test_label.pkl', 'rb')
     usps_image = pickle.load(pkl1)
     usps_label = pickle.load(pkl2)
 
