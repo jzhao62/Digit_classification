@@ -13,7 +13,6 @@ def resize_and_scale(img, size, scale):
     return 1 - np.array(img, "float32")/scale
 def reformat(labels):
     num_labels = 10
-    # Map 0 to [1.0, 0.0, 0.0 ...], 1 to [0.0, 1.0, 0.0 ...]
     labels = (np.arange(num_labels) == labels[:,None]).astype(np.float32)
     return labels
 def import_MNIST():
@@ -79,7 +78,6 @@ def load_usps(pkl_image, pkl_label):
     pkl2 = open('data/usps_test_label.pkl', 'rb')
     usps_image = pickle.load(pkl1)
     usps_label = pickle.load(pkl2)
-
     pkl1.close()
     pkl2.close()
     return usps_image, usps_label

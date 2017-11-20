@@ -5,7 +5,6 @@ def train_single_layer_nn(train_dataset, train_labels, raw_train_labels,  valida
     print('successfully called training method in SNN');
     #  TODO: change this to smaller scale if you want see faster result (but will be more erroronous)
     train_size= 50000
-    # test_size=10000
     input_size=784
     output_size=10
     hidden_layer_size = 100
@@ -82,10 +81,8 @@ def SNN_compute_accu(input, label, hidden_weight, out_weight, title):
     for i in range(len(valid_input)):
         test_inp_line = valid_input[i]
         hidden_inp = np.dot(hidden_weight, test_inp_line)
-        # hidden_out = 1 / (1 + np.exp(-1 * hidden_inp))
         hidden_out = sigmoid(hidden_inp)
         second_inp = np.dot(out_weight, hidden_out)
-        # neural_out_line = 1 / (1 + np.exp(-1 * second_inp))
         neural_out_line = sigmoid(second_inp)
         valid_pred.append(neural_out_line)
 
@@ -100,9 +97,9 @@ def evaluate_nn(test_dataset, raw_test_labels, hidden_wts, neural_out_wts,title)
     for i in range(len(test_dataset)):
         test_inp_line = test_dataset[i]
         hidden_inp = np.dot(hidden_wts, test_inp_line)
-        hidden_out = 1/(1 + np.exp(-1 * hidden_inp))
+        hidden_out = sigmoid(hidden_inp)
         second_inp = np.dot(neural_out_wts,hidden_out)
-        neural_out_line = 1/(1 + np.exp(-1 * second_inp))
+        neural_out_line = sigmoid(second_inp)
         test_pred.append(neural_out_line)
     test_accuracy = accuracy(raw_test_labels,one_hot_encoding(np.array(test_pred)))
     cnf = metrics.confusion_matrix(raw_test_labels, one_hot_encoding(np.array(test_pred)))

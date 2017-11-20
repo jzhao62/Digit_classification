@@ -19,7 +19,7 @@ def main():
     print('------------------------------')
 
 
-    if(True):
+    if(False):
         ''' LRR'''
         weights_lr, loss_record_lr, train_accuracy_lr, validation_accuracy_lr = train_log_regression(train_dataset, train_labels,
                                                                                                        validation_data_input, valid_labels,
@@ -35,7 +35,6 @@ def main():
         evaluate_LR(weights_lr, train_dataset, raw_train_labels, validation_usps, validation_usps_label)
 
         print('------------------------------------------------------------------------------------------')
-
     if(False):
         hidden_wts_nn, out_weights_nn, validation_accuracy_nn, train_accuracy_nn, train_losses_nn = train_single_layer_nn(train_dataset, train_labels, raw_train_labels, validation_data_input, raw_valid_labels)
         print ("SNN model trained")
@@ -50,7 +49,6 @@ def main():
         plt.figure()
         plot_confusion_matrix(cnf_usps, title='Confusion matrix on USPS (SNN), Accuracy: %.1f%%' % (usps_accuracy_nn * 100))
         plt.show()
-
     if(False):
         ''' Train a Convolutional Neural Network'''
 
