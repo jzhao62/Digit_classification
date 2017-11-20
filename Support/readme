@@ -3,8 +3,10 @@ Jingyi Zhao
 Zheng Kai
 Can Yao
 
-SoftMax regression:
+1.SoftMax regression:
 https://www.kdnuggets.com/2016/07/softmax-regression-related-logistic-regression.html
-MNIST dataset:
+2.MNIST dataset:
 http://deeplearning.net/tutorial/gettingstarted.html
+3.A previous benchmark:
+https://github.com/darshanbagul/USPS_Digit_Classification
 
