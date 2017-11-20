@@ -24,9 +24,6 @@ def accuracy_tf(predictions, labels):
 def preprocess_data_cnn_tf(train_dataset, validation_data_input, test_dataset,
                            raw_train_labels, raw_valid_labels, raw_test_labels,
                            validation_usps, validation_usps_label):
-    image_size = 28
-    num_labels = 10
-    num_channels = 1  # grayscale
     training_inp = np.reshape(train_dataset, (50000, 28, 28))
     valid_inp = np.reshape(validation_data_input, (10000, 28, 28))
     test_inp = np.reshape(test_dataset, (10000, 28, 28))
@@ -152,17 +149,17 @@ def train_cnn_model(train_dataset, train_labels,
         test_prediction_output = test_prediction.eval()
         usps_prediction_output = usps_prediction.eval()
         print('Validation accuracy: %.1f%%' % accuracy_tf(valid_prediction_output, valid_labels))
-        # print('Test accuracy: %.1f%%' % accuracy_tf(test_prediction_output, test_labels))
-        # print('USPS data accuracy: %.1f%%' % accuracy_tf(usps_prediction_output, usps_labels))
+        print('Test accuracy: %.1f%%' % accuracy_tf(test_prediction_output, test_labels))
+        print('USPS data accuracy: %.1f%%' % accuracy_tf(usps_prediction_output, usps_labels))
 
-        # p = np.argmax(usps_prediction_output, 1)
-        # label = np.argmax(usps_labels, 1)
-        # print("prediction: ",p)
-        # print("label: ", label )
-        # cnf = metrics.confusion_matrix(label, p)
-        # print("Confusion matrix on USPS (CNN):\n%s" % cnf )
-        # plt.figure()
-        # plot_confusion_matrix(cnf, title='Confusion matrix on USPS (CNN model), Accuracy: %.1f%%' % accuracy_tf(usps_prediction_output, usps_labels))
-        # plt.show()
+        p = np.argmax(usps_prediction_output, 1)
+        label = np.argmax(usps_labels, 1)
+        print("prediction: ",p)
+        print("label: ", label )
+        cnf = metrics.confusion_matrix(label, p)
+        print("Confusion matrix on USPS (CNN):\n%s" % cnf )
+        plt.figure()
+        plot_confusion_matrix(cnf, title='Confusion matrix on USPS (CNN model), Accuracy: %.1f%%' % accuracy_tf(usps_prediction_output, usps_labels))
+        plt.show()
         return loss_record
 

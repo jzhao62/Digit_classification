@@ -37,7 +37,6 @@ def train_single_layer_nn(train_dataset, train_labels, raw_train_labels,  valida
         mini_b_stop = min(train_size,mini_b_start+mini_batch_size-1);
         curr_train_design_mat = train_dataset[mini_b_start:mini_b_stop]
         curr_train_output_k_format = train_labels[mini_b_start:mini_b_stop]
-        curr_train_size = len(curr_train_design_mat)
 
         # miniBatch GD, until model is trained
         for j in range(0,mini_batch_size-1):
@@ -62,9 +61,7 @@ def train_single_layer_nn(train_dataset, train_labels, raw_train_labels,  valida
 
         # generate model accuracy based on validation data
         if(mini_b_start > train_size):
-
             print(num_iter)
-
             vad_accu = SNN_compute_accu(validation_data_input,valid_labels, hidden_wts, neural_out_wts, "validation")
             train_accu = SNN_compute_accu(train_dataset,raw_train_labels, hidden_wts,neural_out_wts, "Training")
 
