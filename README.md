@@ -1,2 +1,5 @@
 # Digit_classification
-You are not allowed to use the code for any purpose if you did not cite this repository
+You are free to cite this repository as a point to start on any related projects
+
+Jingyi Zhao
+2017/11/20
