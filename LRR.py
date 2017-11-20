@@ -15,9 +15,8 @@ def train_log_regression(X, Y, validation_data_input, valid_labels, raw_train_la
     train_accuracy = []
     validation_accuracy = []
 
-    batch_size = 10
+    batch_size = 1000
     lmbda = 0.01
-    alpha = 0.01
     loss = 0
 
     for itr in range(30):
@@ -32,7 +31,7 @@ def train_log_regression(X, Y, validation_data_input, valid_labels, raw_train_la
 
             grad = (1.0/batch_size) * np.dot(curr_x.T, (out_probs - curr_y))
             grad += ((lmbda * curr_weight) / batch_size)
-            curr_weight -= alpha * grad
+            curr_weight -= lmbda * grad
             loss = calculate_entropy_loss(curr_x, curr_weight, Y)
             s += batch_size
 
@@ -60,7 +59,6 @@ def evaluate_LR(weights_lR, MNIST_test_image, MNIST_test_label, USPS_test_image,
     print("USPS Accuracy - LR: ", usps_accu)
 
     cnf = metrics.confusion_matrix(USPS_test_label, one_hot_encoding(pred_output_usps_lr))
-
     plt.figure()
     plot_confusion_matrix(cnf, title='Confusion matrix on USPS (Softmax LR), Accuracy: %.1f%%' % (usps_accu * 100))
     plt.show()

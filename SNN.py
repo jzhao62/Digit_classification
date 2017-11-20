@@ -13,7 +13,7 @@ def train_single_layer_nn(train_dataset, train_labels, raw_train_labels,  valida
 
 
     # batch size for GD
-    mini_batch_size = 1000
+    mini_batch_size = 10
     mini_b_start = 1
 
     # weights 1 input(786 Units) -> HL (500 Units)

@@ -1,7 +1,3 @@
-# import numpy as np
-# import _pickle as cPickle
-# import gzip
-
 
 from load_data import*
 from LRR import*
@@ -23,8 +19,8 @@ def main():
     print('------------------------------')
 
 
-    if(False):
-        ''' Train Logistic Regression Classifier'''
+    if(True):
+        ''' LRR'''
         weights_lr, loss_record_lr, train_accuracy_lr, validation_accuracy_lr = train_log_regression(train_dataset, train_labels,
                                                                                                        validation_data_input, valid_labels,
                                                                                                        raw_train_labels, raw_valid_labels)
@@ -40,7 +36,7 @@ def main():
 
         print('------------------------------------------------------------------------------------------')
 
-    if(True):
+    if(False):
         hidden_wts_nn, out_weights_nn, validation_accuracy_nn, train_accuracy_nn, train_losses_nn = train_single_layer_nn(train_dataset, train_labels, raw_train_labels, validation_data_input, raw_valid_labels)
         print ("SNN model trained")
         plot_data(train_losses_nn, 'loss', [0, 11, -4, 4], 'Epochs', 'Loss', 'Training Losses over epochs: SNN')
@@ -57,7 +53,7 @@ def main():
 
     if(False):
         ''' Train a Convolutional Neural Network'''
-        print ("Training a CNN")
+
         train_dataset_cnn, train_labels_cnn, \
         valid_dataset_cnn, valid_labels_cnn, \
         test_dataset_cnn, test_labels_cnn, \
@@ -71,8 +67,8 @@ def main():
                         test_dataset_cnn, test_labels_cnn,
                         usps_dataset_cnn, usps_labels_cnn)
 
-        plot_data(loss_record, 'CNN_MiniBatch_loss', [0, 10003, 0, 3.5], 'Iterations', 'Loss',
-                  'Loss change over iterations')
+        print ("------------CNN model trained------------")
+        plot_data(loss_record, 'Loss', [0, 10003, 0, 3.5], 'Epochs', 'Loss','Training Loss change over Epochs: CNN)')
 
     print('\n')
     print('\n')

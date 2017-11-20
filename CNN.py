@@ -15,8 +15,7 @@ def reformat_tf(dataset, labels):
 def accuracy_tf(predictions, labels):
     p = np.argmax(predictions, 1)
     l = np.argmax(labels, 1)
-    return (100.0 * np.sum( p == l )
-            / predictions.shape[0])
+    return (100 * np.sum( p == l ) / predictions.shape[0])
 
 
 
@@ -45,11 +44,15 @@ def train_cnn_model(train_dataset, train_labels,
                     validation_data_input, valid_labels,
                     test_dataset, test_labels,
                     usps_dataset, usps_labels):
-    batch_size = 16
+
+    # TODO: batch size
+    batch_size = 10
     patch_size = 5
     depth = 16
+
     num_hidden = 64
     beta_regul = 1e-3
+
     drop_out = 0.5
     image_size = 28
     num_labels = 10
@@ -69,13 +72,17 @@ def train_cnn_model(train_dataset, train_labels,
         # Variables.
         layer1_weights = tf.Variable(tf.truncated_normal([patch_size, patch_size, num_channels, depth], stddev=0.1))
         layer1_biases = tf.Variable(tf.zeros([depth]))
+
         layer2_weights = tf.Variable(tf.truncated_normal([patch_size, patch_size, depth, depth], stddev=0.1))
         layer2_biases = tf.Variable(tf.constant(1.0, shape=[depth]))
+
         size3 = ((image_size - patch_size + 1) // 2 - patch_size + 1) // 2
         layer3_weights = tf.Variable(tf.truncated_normal([size3 * size3 * depth, num_hidden], stddev=0.1))
         layer3_biases = tf.Variable(tf.constant(1.0, shape=[num_hidden]))
+
         layer4_weights = tf.Variable(tf.truncated_normal([num_hidden, num_hidden], stddev=0.1))
         layer4_biases = tf.Variable(tf.constant(1.0, shape=[num_hidden]))
+
         layer5_weights = tf.Variable(tf.truncated_normal([num_hidden, num_labels], stddev=0.1))
         layer5_biases = tf.Variable(tf.constant(1.0, shape=[num_labels]))
 
@@ -101,16 +108,23 @@ def train_cnn_model(train_dataset, train_labels,
             return tf.matmul(drop6, layer5_weights) + layer5_biases
 
         logits = model(tf_train_dataset, drop_out)
-        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels = tf_train_labels, logits = logits)) + beta_regul * (
-        tf.nn.l2_loss(layer1_weights) + tf.nn.l2_loss(layer2_weights) + tf.nn.l2_loss(layer3_weights) + tf.nn.l2_loss(
-            layer4_weights) + tf.nn.l2_loss(layer5_weights))
+        loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(labels = tf_train_labels, logits = logits)) \
+                               + beta_regul * (tf.nn.l2_loss(layer1_weights)
+                               + tf.nn.l2_loss(layer2_weights)
+                               + tf.nn.l2_loss(layer3_weights)
+                               + tf.nn.l2_loss(layer4_weights) + tf.nn.l2_loss(layer5_weights))
 
         # Optimizer.
+
+        # TODO: learning rate optimize,
         learning_rate = tf.train.exponential_decay(0.05, global_step, 1000, 0.85, staircase=True)
         optimizer = tf.train.GradientDescentOptimizer(learning_rate).minimize(loss, global_step=global_step)
 
         # Predictions for the training, validation, and test data.
         train_prediction = tf.nn.softmax(logits)
+
+        print(train_prediction)
+
         valid_prediction = tf.nn.softmax(model(tf_valid_dataset, 1.0))
         test_prediction = tf.nn.softmax(model(tf_test_dataset, 1.0))
         usps_prediction = tf.nn.softmax(model(tf_usps_dataset, 1.0))
@@ -129,26 +143,26 @@ def train_cnn_model(train_dataset, train_labels,
             _, l, predictions = session.run([optimizer, loss, train_prediction], feed_dict=feed_dict)
 
             loss_record.append(l)
-            if (step % 500 == 0):
-                print('Minibatch loss at step %d: %f' % (step, l))
-                # print('Minibatch accuracy: %.1f%%' % accuracy_tf(predictions, batch_labels))
-                # print('Validation accuracy: %.1f%%' % accuracy_tf(valid_prediction.eval(), valid_labels))
+
+            if (step % 1000 == 0):print('loss at step %d: %f' % (step, l))
+
+
 
         valid_prediction_output = valid_prediction.eval()
         test_prediction_output = test_prediction.eval()
         usps_prediction_output = usps_prediction.eval()
         print('Validation accuracy: %.1f%%' % accuracy_tf(valid_prediction_output, valid_labels))
-        print('Test accuracy: %.1f%%' % accuracy_tf(test_prediction_output, test_labels))
-        print('USPS data accuracy: %.1f%%' % accuracy_tf(usps_prediction_output, usps_labels))
+        # print('Test accuracy: %.1f%%' % accuracy_tf(test_prediction_output, test_labels))
+        # print('USPS data accuracy: %.1f%%' % accuracy_tf(usps_prediction_output, usps_labels))
 
-        p = np.argmax(usps_prediction_output, 1)
-        label = np.argmax(usps_labels, 1)
-        print("prediction: ",p)
-        print("label: ", label )
-        cnf = metrics.confusion_matrix(label, p)
-        print("Confusion matrix on USPS (CNN):\n%s" % cnf )
-        plt.figure()
-        plot_confusion_matrix(cnf, title='Confusion matrix on USPS (CNN model), Accuracy: %.1f%%' % accuracy_tf(usps_prediction_output, usps_labels))
-        plt.show()
+        # p = np.argmax(usps_prediction_output, 1)
+        # label = np.argmax(usps_labels, 1)
+        # print("prediction: ",p)
+        # print("label: ", label )
+        # cnf = metrics.confusion_matrix(label, p)
+        # print("Confusion matrix on USPS (CNN):\n%s" % cnf )
+        # plt.figure()
+        # plot_confusion_matrix(cnf, title='Confusion matrix on USPS (CNN model), Accuracy: %.1f%%' % accuracy_tf(usps_prediction_output, usps_labels))
+        # plt.show()
         return loss_record
 
